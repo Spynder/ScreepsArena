@@ -5,7 +5,7 @@ import { } from '/arena';
 
 import './creep.mjs';
 import './spawn.mjs';
-import {getSpawn, getCreeps} from './functions.mjs';
+import {getSpawn, getCreeps, ROLE_HAULER, ROLE_ATTACKER, ROLE_HEALER, ROLE_EXTENSIONER, ROLE_SCOUT} from './functions.mjs';
 
 let initDone = false;
 
@@ -53,20 +53,48 @@ export function loop() {
 	let spawn = getSpawn();
 
 	let myCreeps = getCreeps();
-	let haulers = myCreeps.filter(creep => creep.role == "hauler");
-	let attackers = myCreeps.filter(creep => creep.role == "attacker");
-	let healers = myCreeps.filter(creep => creep.role == "healer");
+	/*let haulers = myCreeps.filter(creep => creep.role == ROLE_HAULER);
+	let attackers = myCreeps.filter(creep => creep.role == ROLE_ATTACKER);
+	let healers = myCreeps.filter(creep => creep.role == ROLE_HEALER);
+	let hasExtensioner = myCreeps.find(creep => creep.role == ROLE_EXTENSIONER);*/
+
+	let haulers = getCreeps(ROLE_HAULER);
+	let attackers = getCreeps(ROLE_ATTACKER);
+	let healers = getCreeps(ROLE_HEALER);
+	let hasExtensioner = getCreeps(ROLE_EXTENSIONER).length;
+	let scouts = getCreeps(ROLE_SCOUT);
 
 	let leader;
 	myCreeps.forEach(creep => creep.run());
-
-	if(haulers.length < 2) {
+	if(haulers.length < 1) {
 		console.log("Spawning hauler");
 		let hauler = spawn.spawnCreep([MOVE, CARRY, MOVE, CARRY, MOVE, CARRY]);
 		console.log(hauler);
 		if(hauler.error) return;
 		else {
-			hauler.object.role = "hauler";
+			hauler.object.role = ROLE_HAULER;
+			return;
+		}
+	}
+
+	else if(!hasExtensioner) {
+		console.log("Spawning extensioner");
+		let extensioner = spawn.spawnCreep([MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY]);
+		console.log(extensioner);
+		if(extensioner.error) return;
+		else {
+			extensioner.object.role = ROLE_EXTENSIONER;
+			return;
+		}
+	}
+
+	else if(scouts.length < 1) {
+		console.log("Spawning scout");
+		let scout = spawn.spawnCreep([MOVE, MOVE, MOVE, MOVE, MOVE, HEAL]);
+		console.log(scout);
+		if(scout.error) return;
+		else {
+			scout.object.role = ROLE_SCOUT;
 			return;
 		}
 	}
@@ -78,7 +106,7 @@ export function loop() {
 			if(!leader) {
 				leader = attacker.object;
 			}
-			attacker.object.role = "attacker";
+			attacker.object.role = ROLE_ATTACKER;
 			return;
 		}
 	}
