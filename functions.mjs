@@ -4,10 +4,12 @@ import {StructureSpawn, Creep, StructureContainer} from 'game/prototypes';
 export let getSpawn = 			() => getObjectsByPrototype(StructureSpawn).find(spawn => spawn.my)
 export let getEnemySpawn = 		() => getObjectsByPrototype(StructureSpawn).find(spawn => !spawn.my)
 
-export let getCreeps = 			(role) => getObjectsByPrototype(Creep).filter(creep => creep.my && creep.exists && (role ? creep.role === role : true));
-export let getEnemyCreeps = 	() => getObjectsByPrototype(Creep).filter(creep => !creep.my && creep.exists);
+export let getCreeps = 			(role) => getObjectsByPrototype(Creep).filter(creep => creep.my && creep.isAlive() && (role ? creep.role === role : true));
+export let getEnemyCreeps = 	() => getObjectsByPrototype(Creep).filter(creep => !creep.my && creep.isAlive());
 
 export let inCenter = 			(obj) => obj.x >= 13 && obj.x <= 86;
+export let getRangeToEnemies = 	(obj) => Math.min(...getEnemyCreeps().map(enemy => getRange(obj, enemy)));
+export let getEnemyTargets = 	(range) => getEnemyCreeps().map(function(creep) { return {pos: creep, range: range}});
 
 export function getNeighbours(tile) {
 	const deltas = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];

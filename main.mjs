@@ -2,6 +2,7 @@ import {getObjectsByPrototype, findClosestByPath, getRange, createConstructionSi
 import {StructureSpawn, Creep, StructureContainer, StructureRampart, StructureWall, ConstructionSite} from 'game/prototypes';
 import {MOVE, CARRY, RANGED_ATTACK, HEAL, WORK, RESOURCE_ENERGY, ERR_NOT_IN_RANGE} from 'game/constants';
 import { } from '/arena';
+import {Visual} from 'game/visual';
 
 import './creep.mjs';
 import './spawn.mjs';
@@ -65,6 +66,11 @@ export function loop() {
 	let scouts = getCreeps(ROLE_SCOUT);
 
 	let leader;
+	getObjectsByPrototype(Creep).filter(c => c.my).forEach(function(creep) {
+		if(creep.dead) {
+			new Visual().circle(creep, {radius: 1, fill: "#FF0000"});
+		}
+	});
 	myCreeps.forEach(creep => creep.run());
 	if(haulers.length < 1) {
 		console.log("Spawning hauler");

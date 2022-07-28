@@ -2,7 +2,7 @@ import {findClosestByPath, getRange} from 'game/utils';
 import {Creep} from 'game/prototypes';
 import {HEAL} from 'game/constants';
 
-import {getSpawn, getEnemySpawn, getEnemyCreeps} from './functions.mjs';
+import {getSpawn, getEnemySpawn, getEnemyCreeps, getRangeToEnemies} from './functions.mjs';
 
 Creep.prototype.attacker = function() {
 	//let healer = getCreeps().find(creep => creep.role == "healer");
@@ -12,7 +12,7 @@ Creep.prototype.attacker = function() {
 	if(!this.healer && healer) {
 		this.healer = healer;
 	}
-	if(!this.lockedTarget && enemy) {
+	if((!this.lockedTarget && enemy) || (this.lockedTarget && this.lockedTarget.exists && getRange(this, this.lockedTarget) > 3)) {
 		this.lockedTarget = enemy;
 	}
 	//console.log(this.lockedTarget);
@@ -38,10 +38,11 @@ Creep.prototype.attacker = function() {
 		
 		//if(!healer) return;
 		//if(getRange(this, healer) <= 1) {
-		if(getRange(this, target) > 3) {
+		let closestRange = getRangeToEnemies(this);
+		if(closestRange > 3) {
 			this.moveTo(target);
 		}
-		else if(getRange(this, target) < 3) {
+		else if(closestRange < 3) {
 			this.moveTo(getSpawn());
 		}
 		//}
